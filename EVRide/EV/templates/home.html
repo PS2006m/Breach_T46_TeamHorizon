@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% load static %}
+        <title>EV Rental Service</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <style>
+            body {
+                background-color: #121212;
+                color: #ffffff;
+            }
+
+            .cost-box.ev {
+                border: 1px solid #4CAF50;
+            }
+
+            .cost-box.petrol {
+                border: 1px solid #f44336;
+            }
+
+            .cost-box .cost {
+                font-size: 2em;
+                font-weight: bold;
+            }
+
+            .cost-box.ev .cost {
+                color: #4CAF50;
+            }
+
+            .cost-box.petrol .cost {
+                color: #f44336;
+            }
+
+            .note {
+                font-size: 0.8em;
+            }
+
+            .btn-selected {
+                background-color: #ffffff !important;
+                color: #121212 !important;
+            }
+
+            .hero {
+                background-image: linear-gradient(to bottom, #343a40, #2f2f2f);
+            }
+
+            .hero .btn {
+                transition: background-color 0.3s, color 0.3s;
+            }
+
+            .hero .btn:hover {
+                background-color: #28a745;
+                color: #fff;
+            }
+
+            a {
+                color: white;
+            }
+
+            .btn-group .btn {
+                border: 2px solid #ffffff;
+                /* White border */
+                transition: all 0.3s ease-in-out;
+            }
+
+            .btn-selected {
+                background-color: darkseagreen !important;
+                /* Green background */
+                color: black !important;
+                box-shadow: 0px 0px 10px rgba(40, 167, 69, 0.7);
+            }
+
+            .footer {
+                background-color: #333;
+                color: #fff;
+                padding: 25px 0;
+                text-align: center;
+                border-top: 1px solid #555;
+            }
+        </style>
+    </head>
+
+    <body class="text-white bg-dark">
+        {% if msg %}
+        <h1>{{msg}}</h1>
+        {% endif %}
+
+        <div class="container">
+
+            <nav class="navbar navbar-expand-lg mt-2 " style="background-color:rgb(86, 205, 86); border-radius: 20px;">
+                <a class="navbar-brand" style="color: white;">EV Rental</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'sm' %}">Station Master Dashboard</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Services</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'adminui' %}">Admin</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Hero Section -->
+        <header class="hero text-white text-center py-5">
+            <div class="container">
+                <h1 class="display-4">Drive the Future with Our EV Rentals</h1>
+                <img src="{% static 'media/vehicle_images/home_removed.png' %}" class="img-fluid" alt="">
+                <p class="lead">Eco-friendly, affordable, and convenient electric vehicle rentals.</p>
+                <!-- <a href="#" class="btn btn-light btn-lg px-5" style="border-radius: 20px;">Find Nearby Station</a> -->
+            </div>
+        </header>
+        <br>
+        <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel" data-bs-interval="1500">
+            <h1 class="text-center">Our Products</h1>
+            <br>
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{% static 'media/vehicle_images/hero_bike_1.webp' %}" class="d-block img-fluid mx-auto"
+                        alt="Bike 1">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Ather 450X Pro </h5>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'media/vehicle_images/hero_bike_2.webp' %}" class="d-block img-fluid mx-auto"
+                        alt="Bike 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Vida V1 </h5>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'media/vehicle_images/hero_bike_3.webp' %}" class="d-block img-fluid mx-auto"
+                        alt="Bike 3">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Ola Electric S1</h5>
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'media\vehicle_images\hero_car_2.webp' %}" class="d-block img-fluid mx-auto"
+                        alt="Car 2">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Tata Tiago EV</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr color="white">
+        <div class="container">
+            <h1 style="text-align: center; padding:20px;"> Our Service Station's </h1>
+            <!-- <div class="container p-5">
+                <form method="post" action="{% url 'home' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="station-select">Select source Station:</label>
+                        <select class="form-control" id="station-select" name="pickup">
+                            {% for s in station %}
+                            <option value="{{s.station_id}}" name="pickup">Station id {{s.station_id}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="station-select">Select destinaion Station:</label>
+                        <select class="form-control" id="station-select" name="end">
+                            {% for s in station %}
+                            <option value="{{s.station_id}}" name="end">Station id {{s.station_id}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form> -->
+            <!-- </div> -->
+            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=1EqrvcCzMZYW74JG96VgxbNaQDOVZjyo&ehbc=2E312F"
+                width="85%" height="480px" class="d-flex mx-auto"></iframe>
+        </div>
+        <br>
+        <hr color="white">
+        <div class="container p-5">
+            <form method="post" action="{% url 'home' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="station-select">Select source Station:</label>
+                    <select class="form-control" id="station-select" name="pickup">
+                        {% for s in station %}
+                        <option value="{{s.station_id}}" name="pickup">Station id {{s.station_id}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="station-select">Select destinaion Station:</label>
+                    <select class="form-control" id="station-select" name="end">
+                        {% for s in station %}
+                        <option value="{{s.station_id}}" name="end">Station id {{s.station_id}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <hr color="white">
+        <!-- Features Section -->
+        <section class="features py-5">
+            <div class="container">
+                <h1 class="text-center" style="font-weight: bold;">Why Choose Us</h1>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3>Affordable Rates</h3>
+                        <img src="{% static 'media\affordable_icon2.png' %}">
+                        <p class="m-3">Rent electric vehicles at
+                            competitive
+                            prices with flexible plans.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>Wide Selection</h4>
+                        <img src="{% static 'media\wide_selection.jpg' %}" width="100%">
+                        <p class="m-3">Choose from a variety of electric vehicles to suit your needs.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>Sustainable Travel</h4>
+                        <img src="{% static 'media\sustainable.jpg' %}" width="100%">
+                        <p class="m-3">Join us in reducing carbon footprints with our eco-friendly options.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <br>
+        <hr color="white">
+        <div class="d-flex align-items-center justify-content-center">
+            <div class="container-fluid">
+                <h2 class="text-center">HOW MUCH FUEL COST WILL YOU SAVE IF YOU USE ELECTRIC?</h2>
+                <br>
+                <div class="row p-3 m-3">
+                    <div class="col-md-6 text-start">
+                        <div class="btn-group mb-3 d-flex justify-content-center" role="group">
+                            <button type="button" class="btn btn-outline-light btn-selected" id="carButton">CAR</button>
+                            <button type="button" class="btn btn-outline-light" id="bikeButton">BIKE</button>
+                        </div>
+                        <h3>DAILY TRAVEL DISTANCE</h3>
+                        <div class="p-3 d-flex justify-content-center"><input type="number" id="distanceInput" value="0"
+                                class="text-center" min="0" max="50" style="width: 10%; border-radius: 4px;">
+
+                            <!-- <span class="input-group-text">KM</span> -->
+                        </div>
+                        <input type="range" class="form-range" id="distanceSlider" min="0" max="50" value="0">
+                        <div class="d-flex justify-content-between">
+                            <span>0 KM</span>
+                            <span>50 KM</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="cost-box ev p-3 rounded-4">
+                                    <h3>CHARGING COST</h3>
+                                    <div class="cost">₹<span id="evCost">0</span></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="cost-box petrol p-3 rounded-4">
+                                    <h3>FUEL COST</h3>
+                                    <div class="cost">₹<span id="petrolCost">0</span></div>
+                                </div>
+                            </div>
+                        </div><br>
+                        <p class="note">Assumption of Average cost of fuel - INR 100
+                            / litre</p>
+                    </div>
+                </div>
+                <hr color="white">
+                <br>
+            </div>
+            <br><br>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                const distanceSlider = document.getElementById('distanceSlider');
+                const distanceInput = document.getElementById('distanceInput');
+                const evCostDisplay = document.getElementById('evCost');
+                const petrolCostDisplay = document.getElementById('petrolCost');
+                const carButton = document.getElementById('carButton');
+                const bikeButton = document.getElementById('bikeButton');
+
+                let vehicleType = "car"; // Default vehicle type
+
+                function updateCosts(distance) {
+                    let evCost, petrolCost;
+
+                    if (vehicleType === "car") {
+                        evCost = Math.round(distance * 0.72); // Example car calculation
+                        petrolCost = Math.round(distance * 6.66); // Example car calculation
+                    } else { // bike
+                        evCost = Math.round(distance * 0.36); // Example bike calculation
+                        petrolCost = Math.round(distance * 3.33); // Example bike calculation
+                    }
+
+                    evCostDisplay.textContent = evCost;
+                    petrolCostDisplay.textContent = petrolCost;
+                }
+
+                function highlightButton(selectedButton) {
+                    carButton.classList.remove('btn-selected');
+                    bikeButton.classList.remove('btn-selected');
+                    selectedButton.classList.add('btn-selected');
+                }
+
+                distanceSlider.addEventListener('input', function () {
+                    const distance = parseInt(this.value);
+                    distanceInput.value = distance;
+                    updateCosts(distance);
+                });
+
+                distanceInput.addEventListener('input', function () {
+                    let distance = parseInt(this.value);
+                    if (isNaN(distance)) {
+                        distance = 0;
+                        this.value = 0;
+                    }
+
+                    if (distance > 50) {
+                        distance = 50;
+                        this.value = 50;
+                    }
+                    if (distance < 0) {
+                        distance = 0;
+                        this.value = 0;
+                    }
+                    distanceSlider.value = distance;
+                    updateCosts(distance);
+                });
+
+                carButton.addEventListener('click', function () {
+                    vehicleType = "car";
+                    updateCosts(parseInt(distanceInput.value));
+                    highlightButton(carButton);
+                });
+
+                bikeButton.addEventListener('click', function () {
+                    vehicleType = "bike";
+                    updateCosts(parseInt(distanceInput.value));
+                    highlightButton(bikeButton);
+                });
+
+                updateCosts(parseInt(distanceInput.value)); // Initial costs
+                highlightButton(carButton); //Highlight Car button on load.
+            </script>
+        </div>
+
+
+        <footer class="footer">
+            <p>© 2025 EV Rental Service. All rights reserved.</p>
+        </footer>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    </body>
+
+</html>

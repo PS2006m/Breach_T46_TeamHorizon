@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Map with Total Distance Calculation</title>
+        {% load static %}
+        <!-- Leaflet CSS -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        <!-- Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <!-- Leaflet Routing Machine CSS -->
+        <link rel="stylesheet"
+            href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+        <!-- Leaflet Routing Machine JS -->
+        <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+        <!-- Turf.js for geospatial calculations -->
+        <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+        <style>
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #map {
+                height: 90vh;
+                width: 100%;
+            }
+
+            h1 {
+                text-align: center;
+                margin: 10px 0;
+            }
+
+            .controls {
+                text-align: center;
+                margin: 10px;
+            }
+        </style>
+    </head>
+
+    <body style="background-color:#343a40;color:red">
+        <h1>Map with Total Distance Calculation</h1>
+        <div class="controls">
+            <label for="source">Source Station:</label>
+            <select id="source">
+                <option value="{{station1}}">Select Source</option>
+                <!-- Stations will be populated here -->
+            </select>
+            <label for="destination">Destination Station:</label>
+            <select id="destination">
+                <option value="{{station2}}">Select Destination</option>
+                <!-- Stations will be populated here -->
+            </select>
+            <button onclick="startRoute()">Start Route</button>
+        </div>
+        <div id="map"></div>
+        <script>
+            var map = L.map('map').setView([23.0225, 72.5714], 13); // Centered on Ahmedabad
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Fire station icon
+            var fireStationIcon = L.icon({
+                iconUrl: '{% static "media/vehicle_images/fire_station.png" %}',
+                iconSize: [70, 70],
+                iconAnchor: [16, 37],
+                popupAnchor: [0, -28]
+            });
+
+            // Stations
+            var stations = [
+                { name: "Station 1", coords: [23.08268, 72.5065] },
+                { name: "Station 2", coords: [23.00117, 72.35613] },
+                { name: "Station 3", coords: [22.987, 72.50089] },
+                { name: "Station 4", coords: [22.99696, 72.57899] },
+                { name: "Station 5", coords: [23.06821, 72.56629] },
+                { name: "Station 6", coords: [22.99504, 72.60402] },
+                { name: "Station 7", coords: [23.03023, 72.60737] },
+                { name: "Station 8", coords: [22.97433, 72.66202] },
+                { name: "Station 9", coords: [23.02426, 72.67266] },
+                { name: "Station 10", coords: [23.02904, 72.47725] }
+            ];
+
+            var stationMarkers = [];
+            stations.forEach(function (station) {
+                var marker = L.marker(station.coords, { icon: fireStationIcon })
+                    .bindPopup(station.name)
+                    .addTo(map);
+                stationMarkers.push(marker);
+
+                // Populate dropdowns
+                var option = document.createElement('option');
+                option.value = station.coords;
+                option.text = station.name;
+                document.getElementById('source').appendChild(option.cloneNode(true));
+                document.getElementById('destination').appendChild(option);
+            });
+
+            // Car icon
+            var carIcon = L.icon({
+                iconUrl: '{% static "media/vehicle_images/bikes_remove.png" %}', // Replace with your car icon
+                iconSize: [40, 40],
+                iconAnchor: [20, 20],
+                popupAnchor: [0, -20]
+            });
+
+            var carMarker;
+            var routingControl;
+            var routePolyline;
+            var routeBuffer;
+
+            function startRoute() {
+                var sourceCoords = document.getElementById('source').value.split(',');
+                var destinationCoords = document.getElementById('destination').value.split(',');
+
+                if (sourceCoords.length !== 2 || destinationCoords.length !== 2) {
+                    alert("Please select both source and destination stations.");
+                    return;
+                }
+
+                var sourceLatLng = L.latLng(parseFloat(sourceCoords[0]), parseFloat(sourceCoords[1]));
+                var destinationLatLng = L.latLng(parseFloat(destinationCoords[0]), parseFloat(destinationCoords[1]));
+
+                // Remove previous routing controls
+                if (routingControl) {
+                    map.removeControl(routingControl);
+                }
+
+                // Create new routing control
+                routingControl = L.Routing.control({
+                    waypoints: [
+                        sourceLatLng,
+                        destinationLatLng
+                    ],
+                    createMarker: () => null,
+                    routeWhileDragging: false,
+                    addWaypoints: false
+                }).addTo(map);
+
+                // Add car marker at source
+                if (carMarker) {
+                    map.removeLayer(carMarker);
+                }
+                carMarker = L.marker(sourceLatLng, { icon: carIcon }).addTo(map);
+
+                // Draw the route and create a buffer (geofence) around it
+                routingControl.on('routesfound', function (e) {
+                    var routes = e.routes;
+                    var route = routes[0];
+
+                    // Get the total distance of the route in kilometers
+                    var totalDistance = (route.summary.totalDistance / 1000).toFixed(2); // Convert meters to kilometers
+
+                    // Display the total distance in the console
+                    console.log("Total distance between source and destination: " + totalDistance + " km");
+
+                    var latLngs = route.coordinates;
+
+                    // Remove previous route polyline and buffer
+                    if (routePolyline) {
+                        map.removeLayer(routePolyline);
+                    }
+                    if (routeBuffer) {
+                        map.removeLayer(routeBuffer);
+                    }
+
+                    // Draw the route polyline
+                    routePolyline = L.polyline(latLngs, { color: 'blue' }).addTo(map);
+
+                    // Create a buffer around the route using Turf.js (5 km radius)
+                    var line = turf.lineString(latLngs.map(ll => [ll.lng, ll.lat]));
+                    var buffer = turf.buffer(line, 5, { units: 'kilometers' }); // 5 km buffer
+                    routeBuffer = L.geoJSON(buffer, {
+                        style: { color: 'red', fillOpacity: 0.1 }
+                    }).addTo(map);
+
+                    // Animate car along the route
+                    var i = 0;
+                    function animateCar() {
+                        if (i < latLngs.length) {
+                            carMarker.setLatLng(latLngs[i]);
+                            i++;
+
+                            // Check if car has reached the destination
+                            if (i >= latLngs.length) {
+                                // Remove geofence, route, and car marker
+                                map.removeLayer(routeBuffer);
+                                map.removeLayer(routePolyline);
+                                map.removeLayer(carMarker);
+
+                                // Alert the user
+                                alert("Successfully reached the destination! Total distance: " + totalDistance + " km");
+                                window.location.href = "/reached/?distance=" + totalDistance;
+
+                                return;
+                            }
+
+                            // Check if car is within the route buffer
+                            var carPoint = turf.point([latLngs[i].lng, latLngs[i].lat]);
+                            if (!turf.booleanPointInPolygon(carPoint, buffer)) {
+                                console.log("Car has exited the 5 km route buffer!");
+                            }
+
+                            setTimeout(animateCar, 100); // Adjust speed here
+                        }
+                    }
+
+                    animateCar();
+                });
+            }
+        </script>
+    </body>
+
+</html>
