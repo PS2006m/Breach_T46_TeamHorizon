@@ -83,8 +83,8 @@ def signin(request):
 
 def home(request):
     if request.method=="POST":
-        Locs.pickup=request.POST['pickup']
-        Locs.end=request.POST['end']
+        request.session['pickup']=request.POST['pickup']
+        request.session['end']=request.POST['end']
         return redirect('vehicle')
     station=Stations.objects.all()
     customer=Customer.objects.get(customer_email=request.session['email'])
@@ -98,8 +98,8 @@ def home(request):
     return render(request,'home.html',{'station':station,'customer':customer.customer_penalty,'pen':pen,'master':master})
 
 def vehicle(request):
-    print(Locs.pickup)
-    station=Stations.objects.get(station_id=Locs.pickup)
+    print(request.session['pickup'])
+    station=Stations.objects.get(station_id=request.session['pickup'])
     vehicles=Vehicle.objects.all()
     vehiclesstation=[]
     stationveh=station.station_vehicles.split(",")
@@ -124,15 +124,15 @@ def av(string,id):
 
 def book(request):
     vehicleId=int(request.POST['id'])
-    Veh.vehicle_Id=vehicleId
-    station1=Locs.pickup
-    station2=Locs.end
+    request.session['vehicle_Id']=vehicleId
+    station1=request.session['pickup']
+    station2=request.session['end']
     customer=Customer.objects.get(customer_email=request.session['email'])
     r=Rides.objects.create(customer_id=customer.customer_id,vehicle_id=vehicleId,pickup_station_id=
-                         Locs.pickup,drop_station_id=Locs.end)
+                         request.session['pickup'],drop_station_id=request.session['end'])
     request.session['ride_id'] = r.ride_id
-    loc1=Stations.objects.get(station_id=Locs.pickup)
-    loc2=Stations.objects.get(station_id=Locs.end)
+    loc1=Stations.objects.get(station_id=request.session['pickup'])
+    loc2=Stations.objects.get(station_id=request.session['end'])
     loc1.station_vehicles=rv(loc1.station_vehicles,vehicleId)
     loc1.save()
     point1=loc1.station_location.split(",")
@@ -145,13 +145,13 @@ def book(request):
                                         'station1':station1,'station2':station2})
     
 def reached(request):
-    st=Stations.objects.get(station_id=Locs.end)
-    st.station_vehicles=av(st.station_vehicles,Veh.vehicle_Id)
+    st=Stations.objects.get(station_id=request.session['end'])
+    st.station_vehicles=av(st.station_vehicles,request.session['vehicle_Id'])
     st.save()
     ride=Rides.objects.get(ride_id=request.session['ride_id'])
     ride.distance=request.GET.get('distance')
     total_distance = request.GET.get('distance')
-    vehicle=Vehicle.objects.get(vehicle_id=Veh.vehicle_Id)
+    vehicle=Vehicle.objects.get(vehicle_id=request.session['vehicle_Id'])
     priceperkm=vehicle.vehicle_pricePerKm
     totalprice=float(total_distance)*int(priceperkm)
     ride.total_cost=totalprice
